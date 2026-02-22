@@ -95,4 +95,15 @@ Rails.application.routes.draw do
   get "service-worker" => "pwa#service_worker"
 
   get "up" => "rails/health#show", as: :rails_health_check
+
+  namespace :api do
+    namespace :v1 do
+      post "auth/sign_in", to: "auth#create"
+      delete "auth/sign_out", to: "auth#destroy"
+
+      resources :rooms, only: %i[index show] do
+        resources :messages, only: %i[index show create update destroy]
+      end
+    end
+  end
 end
