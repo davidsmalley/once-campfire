@@ -3,6 +3,10 @@ module Api
     class MessagesController < BaseController
       include ActiveStorage::SetCurrent
 
+      rate_limit to: 60, within: 1.minute, only: :create, with: -> {
+        render json: { error: "Too many requests" }, status: :too_many_requests
+      }
+
       before_action :set_room
       before_action :set_message, only: %i[show update destroy]
       before_action :ensure_can_administer, only: %i[update destroy]

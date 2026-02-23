@@ -8,7 +8,13 @@ module Api
       end
 
       def update
-        @membership.update!(involvement: params[:involvement])
+        involvement = params[:involvement].to_s
+
+        unless involvement.in?(Membership.involvements.keys)
+          return render json: { error: "Invalid involvement. Must be one of: #{Membership.involvements.keys.join(', ')}" }, status: :unprocessable_entity
+        end
+
+        @membership.update!(involvement: involvement)
         render json: involvement_json
       end
 
