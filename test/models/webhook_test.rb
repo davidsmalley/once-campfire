@@ -1,6 +1,11 @@
 require "test_helper"
 
 class WebhookTest < ActiveSupport::TestCase
+  setup do
+    # Stub DNS resolution for webhook URL since PrivateNetworkGuard resolves before HTTP request
+    RestrictedHTTP::PrivateNetworkGuard.stubs(:resolve).with("example.com").returns("93.184.216.34")
+  end
+
   test "payload" do
     message = messages(:first)
     message_path = Rails.application.routes.url_helpers.room_at_message_path(message.room, message)
@@ -32,7 +37,7 @@ class WebhookTest < ActiveSupport::TestCase
   end
 
   test "delivery with OK attachment reply" do
-    WebMock.stub_request(:post, webhooks(:bender).url).to_return(status: 200, body: file_fixture("moon.jpg"), headers: { "Content-Type" => "image/jpeg" })
+    WebMock.stub_request(:post, webhooks(:bender).url).to_return(status: 200, body: file_fixture("moon.jpg").read, headers: { "Content-Type" => "image/jpeg" })
     response = webhooks(:bender).deliver(messages(:first))
 
     reply_message = Message.last
@@ -52,5 +57,23 @@ class WebhookTest < ActiveSupport::TestCase
 
     reply_message = Message.last
     assert_equal "Failed to respond within 7 seconds", reply_message.body.to_plain_text
+  end
+
+  test "delivery to private network address is rejected" do
+    RestrictedHTTP::PrivateNetworkGuard.unstub(:resolve)
+    RestrictedHTTP::PrivateNetworkGuard.stubs(:resolve).with("example.com").raises(RestrictedHTTP::Violation)
+
+    webhooks(:bender).deliver(messages(:first))
+
+    reply_message = Message.last
+    assert_equal "Webhook URL must not point to a private network address", reply_message.body.to_plain_text
+  end
+
+  test "validates URL does not target private network" do
+    RestrictedHTTP::PrivateNetworkGuard.stubs(:resolve).with("localhost").raises(RestrictedHTTP::Violation)
+
+    webhook = Webhook.new(user: users(:bender), url: "http://localhost/hook")
+    assert_not webhook.valid?
+    assert_includes webhook.errors[:url], "must not point to a private network address"
   end
 end

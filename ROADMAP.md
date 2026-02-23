@@ -320,9 +320,13 @@ The current web app uses Web Push (VAPID). For iOS, we need Apple Push Notificat
 
 ### Implementation Tasks
 
-- [ ] Add APNs gem and configuration
-- [ ] Add device token registration endpoint
-- [ ] Modify `Room::PushMessageJob` to support APNs
+- [x] Add APNs gem (`apnotic`) and configuration
+- [x] Add `platform` + `device_token` columns to push_subscriptions
+- [x] Create `Apns::Notification` and `Apns::Pool` (mirrors WebPush architecture)
+- [x] Update `Push::Subscription` model with platform awareness
+- [x] Update `Room::MessagePusher` to route to both WebPush and APNs pools
+- [x] Add device token registration/unregistration API endpoints
+- [x] Add request specs for push subscription endpoints
 - [ ] Add Notification Service Extension (iOS) for rich notifications
 - [ ] Add notification actions (reply, mark as read)
 - [ ] Handle notification grouping by room (thread-id)

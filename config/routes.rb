@@ -115,6 +115,9 @@ Rails.application.routes.draw do
       resources :users, only: %i[show]
 
       resources :searches, only: %i[create]
+
+      resources :push_subscriptions, only: %i[create destroy]
+      delete "push_subscriptions/device/:device_token", to: "push_subscriptions#destroy_by_token", as: :push_subscription_by_token
     end
   end
 end

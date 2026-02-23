@@ -14,11 +14,13 @@ class Room::MessagePusher
 
   private
     def build_payload
-      if room.direct?
+      base = if room.direct?
         build_direct_payload
       else
         build_shared_payload
       end
+
+      base.merge(room_id: room.id, message_id: message.id)
     end
 
     def build_direct_payload
@@ -60,6 +62,7 @@ class Room::MessagePusher
     end
 
     def enqueue_payload_for_delivery(payload, subscriptions)
-      Rails.configuration.x.web_push_pool.queue(payload, subscriptions)
+      Rails.configuration.x.web_push_pool.queue(payload, subscriptions.web)
+      Rails.configuration.x.apns_pool.queue(payload, subscriptions.ios)
     end
 end

@@ -36,6 +36,7 @@ gem "sentry-rails"
 # Other
 gem "bcrypt"
 gem "web-push"
+gem "apnotic"
 gem "rqrcode"
 gem "rails_autolink"
 gem "geared_pagination"

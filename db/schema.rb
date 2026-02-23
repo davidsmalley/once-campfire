@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
+ActiveRecord::Schema[8.2].define(version: 2026_02_23_064501) do
   create_table "accounts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "custom_styles"
@@ -107,12 +107,16 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
   create_table "push_subscriptions", force: :cascade do |t|
     t.string "auth_key"
     t.datetime "created_at", null: false
+    t.string "device_token"
     t.string "endpoint"
     t.string "p256dh_key"
+    t.string "platform", default: "web", null: false
     t.datetime "updated_at", null: false
     t.string "user_agent"
     t.integer "user_id", null: false
+    t.index ["device_token"], name: "index_push_subscriptions_on_device_token", unique: true, where: "device_token IS NOT NULL"
     t.index ["endpoint", "p256dh_key", "auth_key"], name: "idx_on_endpoint_p256dh_key_auth_key_7553014576"
+    t.index ["platform"], name: "index_push_subscriptions_on_platform"
     t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
   end
 

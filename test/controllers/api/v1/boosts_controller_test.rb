@@ -45,10 +45,12 @@ class Api::V1::BoostsControllerTest < ActionDispatch::IntegrationTest
     boost = boosts(:first)  # david's boost
     jason_session = Session.create!(user: users(:jason), user_agent: "test", ip_address: "127.0.0.1")
 
-    assert_raises ActiveRecord::RecordNotFound do
+    assert_no_difference -> { Boost.count } do
       delete api_v1_message_boost_url(@message, boost),
         headers: { "Authorization" => "Bearer #{jason_session.token}" }
     end
+
+    assert_response :not_found
   end
 
   test "create for unreachable message returns not found" do
