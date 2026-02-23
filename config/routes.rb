@@ -101,9 +101,20 @@ Rails.application.routes.draw do
       post "auth/sign_in", to: "auth#create"
       delete "auth/sign_out", to: "auth#destroy"
 
-      resources :rooms, only: %i[index show] do
+      resources :rooms, only: %i[index show create] do
         resources :messages, only: %i[index show create update destroy]
+        resource :involvement, only: %i[show update]
       end
+
+      resources :messages, only: [] do
+        resources :boosts, only: %i[create destroy], controller: "boosts"
+      end
+
+      get "users/me", to: "users#me"
+      put "users/me", to: "users#update_me"
+      resources :users, only: %i[show]
+
+      resources :searches, only: %i[create]
     end
   end
 end

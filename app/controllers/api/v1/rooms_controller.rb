@@ -2,6 +2,7 @@ module Api
   module V1
     class RoomsController < BaseController
       before_action :set_room, only: %i[show]
+      before_action :ensure_permission_to_create_rooms, only: %i[create]
 
       def index
         rooms = Current.user.rooms.ordered
@@ -13,11 +14,42 @@ module Api
         render json: room_json(@room, include_members: true)
       end
 
+      def create
+        room_type = params[:type]&.downcase
+
+        case room_type
+        when "open"
+          room = Rooms::Open.create_for(room_params, users: Current.user)
+        when "closed"
+          users = params[:user_ids].present? ? User.where(id: params[:user_ids]).to_a.push(Current.user) : [ Current.user ]
+          room = Rooms::Closed.create_for(room_params, users: users)
+        when "direct"
+          users = User.where(id: Array(params[:user_ids]).push(Current.user.id))
+          room = Rooms::Direct.find_or_create_for(users)
+        else
+          return render json: { error: "Invalid room type. Must be: open, closed, or direct" }, status: :unprocessable_entity
+        end
+
+        render json: room_json(room, include_members: true), status: :created
+      end
+
       private
         def set_room
           @room = Current.user.rooms.find(params[:id])
         rescue ActiveRecord::RecordNotFound
           render_not_found
+        end
+
+        def ensure_permission_to_create_rooms
+          return if params[:type]&.downcase == "direct"
+
+          if Current.account.settings.restrict_room_creation_to_administrators? && !Current.user.administrator?
+            render_forbidden
+          end
+        end
+
+        def room_params
+          params.permit(:name)
         end
 
         def room_json(room, include_members: false)
