@@ -1,4 +1,4 @@
-import { arrayBufferToBase64, base64ToArrayBuffer } from "./utils"
+import { arrayBufferToBase64, base64ToArrayBuffer } from "lib/encryption/utils"
 
 export default class KeyBundleService {
   #csrfToken

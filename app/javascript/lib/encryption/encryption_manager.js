@@ -1,6 +1,6 @@
-import KeyStore from "./key_store"
-import KeyBundleService from "./key_bundle_service"
-import { arrayBufferToBase64, base64ToArrayBuffer, concatBuffers } from "./utils"
+import KeyStore from "lib/encryption/key_store"
+import KeyBundleService from "lib/encryption/key_bundle_service"
+import { arrayBufferToBase64, base64ToArrayBuffer, concatBuffers } from "lib/encryption/utils"
 
 const PRE_KEY_BATCH_SIZE = 100
 const E2E_PREFIX = "e2e:v1:"
