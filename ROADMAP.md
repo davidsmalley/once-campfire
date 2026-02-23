@@ -76,7 +76,7 @@ POST   /api/v1/searches                              # search messages
 - [x] Add `Api::V1::BaseController` with token auth
 - [x] Add API routes under `/api/v1`
 - [x] Add JSON serialization (inline `*_json` helpers)
-- [ ] Add API-specific ActionCable authentication (token in connection params)
+- [x] Add API-specific ActionCable authentication (token in connection params)
 - [x] Add request specs for all API endpoints
 - [x] Add rate limiting (auth endpoint)
 - [x] Add API versioning strategy (v1 namespace)
