@@ -4,9 +4,10 @@ import ClientMessage from "models/client_message"
 import MessageFormatter, { ThreadStyle } from "models/message_formatter"
 import MessagePaginator from "models/message_paginator"
 import ScrollManager from "models/scroll_manager"
+import EncryptionManager from "lib/encryption/encryption_manager"
 
 export default class extends Controller {
-  static targets = [ "latest", "message", "body", "messages", "template" ]
+  static targets = [ "latest", "message", "body", "messages", "template", "encryptedBody" ]
   static classes = [ "firstOfDay", "formatted", "me", "mentioned", "threaded" ]
   static values = { pageUrl: String }
 
@@ -51,6 +52,10 @@ export default class extends Controller {
 
   bodyTargetConnected(target) {
     this.#formatter.formatBody(target)
+  }
+
+  encryptedBodyTargetConnected(target) {
+    this.#decryptMessage(target)
   }
 
   // Actions
@@ -186,5 +191,26 @@ export default class extends Controller {
 
   #sortValue(node) {
     return (node && parseInt(node.dataset.sortValue)) || 0
+  }
+
+  async #decryptMessage(target) {
+    const encryptedBody = target.dataset.encryptedBody
+    const senderId = parseInt(target.dataset.senderId)
+
+    if (!EncryptionManager.isEncrypted(encryptedBody)) return
+
+    try {
+      const manager = window.__encryptionManager
+      if (!manager) throw new Error("Encryption not initialized")
+
+      const plaintext = await manager.decrypt(encryptedBody, senderId)
+      target.innerHTML = plaintext
+      target.classList.remove("message__encrypted")
+      target.classList.add("message__decrypted")
+    } catch (error) {
+      const placeholder = target.querySelector(".message__encrypted-placeholder")
+      if (placeholder) placeholder.textContent = "Unable to decrypt message"
+      console.error("Decryption failed:", error)
+    }
   }
 }

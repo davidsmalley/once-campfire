@@ -8,6 +8,11 @@
       <% end %>
 
       <%= room_display_name(room) %>
+      <% if room.encrypted? %>
+        <span class="room__encryption-badge" title="End-to-end encrypted">
+          <%= image_tag "lock.svg", size: 14, aria: { hidden: "true" } %>
+        </span>
+      <% end %>
     </h1>
   <% end %>
 

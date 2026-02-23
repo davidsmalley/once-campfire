@@ -6,7 +6,7 @@ import { escapeHTML } from "helpers/dom_helpers"
 export default class extends Controller {
   static classes = ["toolbar"]
   static targets = [ "clientid", "fields", "fileList", "text" ]
-  static values = { roomId: Number }
+  static values = { roomId: Number, roomEncrypted: Boolean, roomType: String, recipientId: Number }
   static outlets = [ "messages" ]
 
   #files = []
@@ -119,9 +119,35 @@ export default class extends Controller {
       await this.messagesOutlet.insertPendingMessage(clientMessageId, this.textTarget)
       await nextFrame()
 
+      // Encrypt the message body if the room is encrypted
+      if (this.roomEncryptedValue) {
+        await this.#encryptMessageBody()
+      }
+
       this.clientidTarget.value = clientMessageId
       this.element.requestSubmit()
       this.#reset()
+    }
+  }
+
+  async #encryptMessageBody() {
+    const manager = window.__encryptionManager
+    if (!manager) return
+
+    const body = this.textTarget.editor.getDocument().toString().trim()
+
+    try {
+      let encryptedBody
+      if (this.roomTypeValue === "direct" && this.recipientIdValue) {
+        encryptedBody = await manager.encryptForDirect(body, this.recipientIdValue)
+      } else {
+        // Group encryption not yet implemented — send plaintext for non-direct rooms
+        return
+      }
+
+      this.textTarget.editor.loadHTML(encryptedBody)
+    } catch (error) {
+      console.error("Encryption failed, sending plaintext:", error)
     }
   }
 

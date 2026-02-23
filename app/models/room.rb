@@ -64,6 +64,10 @@ class Room < ApplicationRecord
     "mentions"
   end
 
+  def other_member(user)
+    users.where.not(id: user.id).first
+  end
+
   private
     def unread_memberships(message)
       memberships.visible.disconnected.where.not(user: message.creator).update_all(unread_at: message.created_at, updated_at: Time.current)

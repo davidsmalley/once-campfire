@@ -62,12 +62,20 @@ module RoomsHelper
 
   private
     def composer_data_options(room)
-      {
+      options = {
         controller: "composer drop-target",
         action: composer_data_actions,
         composer_messages_outlet: "#message-area",
-        composer_toolbar_class: "composer--rich-text", composer_room_id_value: room.id
+        composer_toolbar_class: "composer--rich-text", composer_room_id_value: room.id,
+        composer_room_encrypted_value: room.encrypted?,
+        composer_room_type_value: room.type.demodulize.downcase
       }
+
+      if room.direct? && room.encrypted?
+        options[:composer_recipient_id_value] = room.other_member(Current.user)&.id
+      end
+
+      options
     end
 
     def composer_data_actions

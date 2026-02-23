@@ -593,3 +593,17 @@ img.message__attachment {
     inline-size: 1.4em;
   }
 }
+
+/* E2EE encrypted message placeholder */
+
+.message__encrypted-placeholder {
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+.room__encryption-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: 0.25em;
+  opacity: 0.6;
+}

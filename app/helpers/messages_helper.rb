@@ -51,6 +51,12 @@ module MessagesHelper
   end
 
   def message_presentation(message)
+    body_text = message.body.body.to_s
+
+    if body_text.start_with?("e2e:v1:")
+      return message_encrypted_presentation(message, body_text)
+    end
+
     case message.content_type
     when "attachment"
       message_attachment_presentation(message)
@@ -81,6 +87,17 @@ module MessagesHelper
 
     def presence_actions
       "visibilitychange@document->presence#visibilityChanged"
+    end
+
+    def message_encrypted_presentation(message, body_text)
+      tag.div class: "message__encrypted",
+        data: {
+          encrypted_body: body_text,
+          sender_id: message.creator_id,
+          messages_target: "encryptedBody"
+        } do
+        tag.span "Encrypted message", class: "message__encrypted-placeholder"
+      end
     end
 
     def message_attachment_presentation(message)
