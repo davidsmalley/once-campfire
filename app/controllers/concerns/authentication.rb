@@ -84,7 +84,7 @@ module Authentication
     end
 
     def set_authentication_cookie(session)
-      cookies.signed.permanent[:session_token] = { value: session.token, httponly: true, same_site: :lax }
+      cookies.signed.permanent[:session_token] = { value: session.token, httponly: true, same_site: :lax, secure: Rails.configuration.force_ssl }
     end
 
     def remove_authentication_cookie

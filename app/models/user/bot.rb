@@ -18,8 +18,12 @@ module User::Bot
     end
 
     def authenticate_bot(bot_key)
-      bot_id, bot_token = bot_key.split("-")
-      active_bots.find_by(id: bot_id, bot_token: bot_token)
+      bot_id, bot_token = bot_key.split("-", 2)
+      return unless bot_id.present? && bot_token.present?
+
+      if bot = active_bots.find_by(id: bot_id)
+        bot if ActiveSupport::SecurityUtils.secure_compare(bot.bot_token.to_s, bot_token)
+      end
     end
 
     def generate_bot_token

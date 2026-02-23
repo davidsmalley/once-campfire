@@ -1,6 +1,10 @@
 module Api
   module V1
     class SearchesController < BaseController
+      rate_limit to: 30, within: 1.minute, only: :create, with: -> {
+        render json: { error: "Too many requests" }, status: :too_many_requests
+      }
+
       def create
         if query.blank?
           return render json: { error: "Query is required" }, status: :unprocessable_entity
