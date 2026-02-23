@@ -110,8 +110,11 @@ Rails.application.routes.draw do
         resources :boosts, only: %i[create destroy], controller: "boosts"
       end
 
+      post "users/me/keys", to: "key_bundles#create"
+      delete "users/me/keys", to: "key_bundles#destroy"
       get "users/me", to: "users#me"
       put "users/me", to: "users#update_me"
+      get "users/:id/keys", to: "key_bundles#show", as: :users_keys
       resources :users, only: %i[show]
 
       resources :searches, only: %i[create]

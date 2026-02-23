@@ -49,7 +49,7 @@ module Api
         end
 
         def room_params
-          params.permit(:name)
+          params.permit(:name, :encrypted)
         end
 
         def room_json(room, include_members: false)
@@ -59,6 +59,7 @@ module Api
             id: room.id,
             name: room.name,
             type: room.type.demodulize.downcase,
+            encrypted: room.encrypted,
             created_at: room.created_at,
             updated_at: room.updated_at,
             unread: membership&.unread_at.present?,

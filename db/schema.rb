@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
+ActiveRecord::Schema[8.2].define(version: 2026_02_23_093340) do
   create_table "accounts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "custom_styles"
@@ -79,6 +79,17 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
     t.index ["message_id"], name: "index_boosts_on_message_id"
   end
 
+  create_table "key_bundles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.binary "identity_key", null: false
+    t.binary "signed_pre_key", null: false
+    t.integer "signed_pre_key_id", null: false
+    t.binary "signed_pre_key_signature", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_key_bundles_on_user_id", unique: true
+  end
+
   create_table "memberships", force: :cascade do |t|
     t.datetime "connected_at"
     t.integer "connections", default: 0, null: false
@@ -104,6 +115,16 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
     t.index ["room_id"], name: "index_messages_on_room_id"
   end
 
+  create_table "pre_keys", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "key_id", null: false
+    t.binary "public_key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "key_id"], name: "index_pre_keys_on_user_id_and_key_id", unique: true
+    t.index ["user_id"], name: "index_pre_keys_on_user_id"
+  end
+
   create_table "push_subscriptions", force: :cascade do |t|
     t.string "auth_key"
     t.datetime "created_at", null: false
@@ -119,6 +140,7 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
   create_table "rooms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "creator_id", null: false
+    t.boolean "encrypted", default: false, null: false
     t.string "name"
     t.string "type", null: false
     t.datetime "updated_at", null: false
@@ -170,8 +192,10 @@ ActiveRecord::Schema[8.2].define(version: 2025_12_12_154340) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bans", "users"
   add_foreign_key "boosts", "messages"
+  add_foreign_key "key_bundles", "users"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users", column: "creator_id"
+  add_foreign_key "pre_keys", "users"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "searches", "users"
   add_foreign_key "sessions", "users"

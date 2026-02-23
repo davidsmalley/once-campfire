@@ -15,6 +15,9 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :bans, dependent: :destroy
 
+  has_one :key_bundle, dependent: :destroy
+  has_many :pre_keys, dependent: :delete_all
+
   enum :status, %i[ active deactivated banned ], default: :active
 
   has_secure_password validations: false
